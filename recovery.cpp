@@ -729,6 +729,11 @@ Device::BuiltinAction start_recovery(Device* device, const std::vector<std::stri
     "Version " + android::base::GetProperty("ro.leaf.build.version", "(unknown)") +
         " (" + android::base::GetProperty("ro.leaf.build.date", "unknown") + ")",
   };
+  if (android::base::GetBoolProperty("ro.build.ab_update", false)) {
+    std::string slot = android::base::GetProperty("ro.boot.slot_suffix", "");
+    if (android::base::StartsWith(slot, "_")) slot.erase(0, 1);
+    title_lines.push_back("Active slot: " + slot);
+  }
   ui->SetTitle(title_lines);
 
   ui->ResetKeyInterruptStatus();
