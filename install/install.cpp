@@ -582,6 +582,7 @@ static InstallResult VerifyAndInstallPackage(Package* package, bool* wipe_cache,
   ui->SetProgressType(RecoveryUI::DETERMINATE);
   ui->ShowProgress(VERIFICATION_PROGRESS_FRACTION, VERIFICATION_PROGRESS_TIME);
 
+  /*
   // Verify package.
   if (!verify_package(package, ui)) {
     log_buffer->push_back(android::base::StringPrintf("error: %d", kZipVerificationFailure));
@@ -589,6 +590,7 @@ static InstallResult VerifyAndInstallPackage(Package* package, bool* wipe_cache,
         return INSTALL_CORRUPT;
     }
   }
+  */
 
   // Verify and install the contents of the package.
   ui->Print("Installing update...\n");
@@ -693,6 +695,7 @@ InstallResult InstallPackage(Package* package, const std::string_view package_id
   return result;
 }
 
+/*
 bool verify_package(Package* package, RecoveryUI* ui) {
   static constexpr const char* CERTIFICATE_ZIP_FILE = "/system/etc/security/otacerts.zip";
   std::vector<Certificate> loaded_keys = LoadKeysFromZipfile(CERTIFICATE_ZIP_FILE);
@@ -715,6 +718,7 @@ bool verify_package(Package* package, RecoveryUI* ui) {
   }
   return true;
 }
+*/
 
 bool SetupPackageMount(const std::string& package_path, bool* should_use_fuse) {
   CHECK(should_use_fuse != nullptr);

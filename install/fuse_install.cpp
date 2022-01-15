@@ -76,6 +76,7 @@ static std::string BrowseDirectory(const std::string& path, Device* device, Reco
       if (name == "." || name == "..") continue;
       dirs.push_back(name + "/");
     } else if (de->d_type == DT_REG && (android::base::EndsWithIgnoreCase(name, ".zip") ||
+                                        android::base::EndsWithIgnoreCase(name, ".apk") ||
                                         android::base::EndsWithIgnoreCase(name, ".map"))) {
       entries.push_back(name);
     }
