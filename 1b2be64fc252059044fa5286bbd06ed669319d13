@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aea82a08_f4d0b94a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2022-06-01T07:40:17Z",
+      "side": 1,
+      "message": "Unlike https://review.leafos.org/c/LeafOS-Project/android_bootable_recovery/+/207/2/recovery_main.cpp\nthis doesn\u0027t cause adbd to not run as root if we booted into fastbootd directly and then switched to recovery.",
+      "revId": "1b2be64fc252059044fa5286bbd06ed669319d13",
+      "serverId": "b49086b3-c06c-47ea-b69e-65c8379e1be6"
+    }
+  ]
+}
