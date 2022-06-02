@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "491538c5_376eb686",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2022-06-02T06:18:15Z",
+      "side": 1,
+      "message": "Rebranding is done in a separate change",
+      "revId": "f1ae872b949f2c28e6a177e78b1ea1ef0a8987b5",
+      "serverId": "b49086b3-c06c-47ea-b69e-65c8379e1be6"
+    }
+  ]
+}
