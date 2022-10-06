@@ -17,12 +17,6 @@
 #include "install/wipe_data.h"
 
 #include <string.h>
-#include <fcntl.h>
-#include <linux/fs.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
 
 #include <functional>
 #include <vector>
@@ -60,34 +54,11 @@ static bool EraseVolume(const char* volume, RecoveryUI* ui) {
     android::dm::DeviceMapper& dm = android::dm::DeviceMapper::Instance();
 
     map_logical_partitions();
-    // map_logical_partitions is non-blocking, so check for some limited time
-    // if it succeeded
-    for (int i = 0; i < 500; i++) {
-      if (vol->blk_device[0] == '/' ||
-          dm.GetState(vol->blk_device) == android::dm::DmDeviceState::ACTIVE)
-        break;
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
 
     if (vol->blk_device[0] != '/' && !dm.GetDmDevicePathByName(vol->blk_device, &vol->blk_device)) {
       PLOG(ERROR) << "Failed to find dm device path for " << vol->blk_device;
       return false;
     }
-
-    int fd = open(vol->blk_device.c_str(), O_RDWR);
-    if (fd < 0) {
-      PLOG(ERROR) << "Failed to open " << vol->blk_device;
-      return false;
-    }
-
-    int val = 0;
-    if (ioctl(fd, BLKROSET, &val) != 0) {
-      PLOG(ERROR) << "Failed to set " << vol->blk_device << " rw";
-      close(fd);
-      return false;
-    }
-
-    close(fd);
   }
 
   if (ensure_volume_unmounted(vol->blk_device) == -1) {
