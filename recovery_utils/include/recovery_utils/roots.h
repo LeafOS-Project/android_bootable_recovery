@@ -52,7 +52,8 @@ int format_volume(const std::string& volume);
 // "/cache"), no paths permitted.  Attempts to unmount the volume if
 // it is mounted.
 // Copies 'directory' to root of the newly formatted volume
-int format_volume(const std::string& volume, const std::string& directory);
+int format_volume(const std::string& volume, const std::string& directory,
+                  std::string_view new_fstype);
 
 // Reformat the given volume (must be the mount point only, eg
 // "/cache"), no paths permitted.  Attempts to unmount the volume if
