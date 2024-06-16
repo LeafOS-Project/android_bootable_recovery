@@ -36,7 +36,6 @@
 
 #include "bootloader_message/bootloader_message.h"
 #include "install/snapshot_utils.h"
-#include "otautil/dirutil.h"
 #include "recovery_ui/ui.h"
 #include "recovery_utils/logging.h"
 #include "recovery_utils/roots.h"
@@ -45,7 +44,8 @@ constexpr const char* CACHE_ROOT = "/cache";
 constexpr const char* DATA_ROOT = "/data";
 constexpr const char* METADATA_ROOT = "/metadata";
 
-static bool EraseVolume(const char* volume, RecoveryUI* ui, std::string fs) {
+static bool EraseVolume(const char* volume, RecoveryUI* ui, std::string_view new_fstype) {
+  LOG(INFO) << "Erasing volume " << volume << " with new filesystem type " << new_fstype;
   bool is_cache = (strcmp(volume, CACHE_ROOT) == 0);
   bool is_data = (strcmp(volume, DATA_ROOT) == 0);
 
@@ -56,7 +56,7 @@ static bool EraseVolume(const char* volume, RecoveryUI* ui, std::string fs) {
     log_files = ReadLogFilesToMemory();
   }
 
-  ui->Print("Formatting %s to %s...\n", volume, fs.c_str());
+  ui->Print("Formatting %s to %s...\n", volume, new_fstype.data());
 
   Volume* vol = volume_for_mount_point(volume);
   if (vol->fs_mgr_flags.logical) {
@@ -105,12 +105,7 @@ static bool EraseVolume(const char* volume, RecoveryUI* ui, std::string fs) {
     return false;
   }
 
-  int result;
-  if (is_data) {
-    result = format_volume(volume, "", fs);
-  } else {
-    result = format_volume(volume);
-  }
+  int result = format_volume(volume, "", new_fstype);
 
   if (is_cache) {
     RestoreLogFilesAfterFormat(log_files);
@@ -119,11 +114,8 @@ static bool EraseVolume(const char* volume, RecoveryUI* ui, std::string fs) {
   return (result == 0);
 }
 
-static bool EraseVolume(const char* volume, RecoveryUI* ui) {
-  return EraseVolume(volume, ui, volume_for_mount_point(volume)->fs_type);
-}
-
-bool WipeCache(RecoveryUI* ui, const std::function<bool()>& confirm_func) {
+bool WipeCache(RecoveryUI* ui, const std::function<bool()>& confirm_func,
+               std::string_view new_fstype) {
   bool has_cache = volume_for_mount_point("/cache") != nullptr;
   if (!has_cache) {
     ui->Print("No /cache partition found.\n");
@@ -138,14 +130,14 @@ bool WipeCache(RecoveryUI* ui, const std::function<bool()>& confirm_func) {
   ui->SetBackground(RecoveryUI::ERASING);
   ui->SetProgressType(RecoveryUI::INDETERMINATE);
 
-  bool success = EraseVolume("/cache", ui);
+  bool success = EraseVolume("/cache", ui, new_fstype);
   ui->Print("Cache wipe %s.\n", success ? "complete" : "failed");
   return success;
 }
 
-bool WipeData(Device* device, std::string fs, bool keep_memtag_mode) {
+bool WipeData(Device* device, bool keep_memtag_mode, std::string_view data_fstype) {
   RecoveryUI* ui = device->GetUI();
-  ui->Print("\n-- Wiping data...\n");
+  ui->Print("\n-- Wiping data %.*s...\n", static_cast<int>(data_fstype.size()), data_fstype.data());
   ui->SetBackground(RecoveryUI::ERASING);
   ui->SetProgressType(RecoveryUI::INDETERMINATE);
 
@@ -156,13 +148,13 @@ bool WipeData(Device* device, std::string fs, bool keep_memtag_mode) {
 
   bool success = device->PreWipeData();
   if (success) {
-    success &= EraseVolume(DATA_ROOT, ui, fs);
+    success &= EraseVolume(DATA_ROOT, ui, data_fstype);
     bool has_cache = volume_for_mount_point("/cache") != nullptr;
     if (has_cache) {
-      success &= EraseVolume(CACHE_ROOT, ui);
+      success &= EraseVolume(CACHE_ROOT, ui, data_fstype);
     }
     if (volume_for_mount_point(METADATA_ROOT) != nullptr) {
-      success &= EraseVolume(METADATA_ROOT, ui);
+      success &= EraseVolume(METADATA_ROOT, ui, data_fstype);
     }
   }
   if (keep_memtag_mode) {
