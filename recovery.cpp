@@ -545,7 +545,7 @@ change_menu:
           if (fs == "")
             break;
           if (ask_to_wipe_data(device)) {
-            WipeData(device, fs);
+            WipeData(device, false, fs);
           }
         } else {
           WipeData(device);
